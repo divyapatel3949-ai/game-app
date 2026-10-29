@@ -72,6 +72,10 @@ export class GameEngine {
   // Ambient stars/dust
   private ambientDust: { x: number; y: number; vy: number; radius: number; alpha: number }[] = [];
 
+  // Custom User Background Image
+  private bgImage: HTMLImageElement | null = null;
+  private bgImageLoaded: boolean = false;
+
   constructor(canvas: HTMLCanvasElement, callbacks: EngineCallbacks) {
     this.canvas = canvas;
     const context = canvas.getContext('2d');
@@ -83,6 +87,13 @@ export class GameEngine {
     this.lineManager = new LineManager();
     this.particles = new ParticleSystem();
     this.powerUps = new PowerUpManager();
+
+    // Load background photo
+    this.bgImage = new Image();
+    this.bgImage.src = '/game-bg.png';
+    this.bgImage.onload = () => {
+      this.bgImageLoaded = true;
+    };
 
     // Load saved skin
     const savedSkinId = StorageManager.getSelectedSkin();
@@ -487,6 +498,34 @@ export class GameEngine {
     // 1. Cyberpunk Dark Void Background
     ctx.fillStyle = '#060814';
     ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+    // 1.5 Custom User Photo Background
+    if (this.bgImage && this.bgImageLoaded) {
+      ctx.save();
+      const imgRatio = this.bgImage.width / this.bgImage.height;
+      const canvasRatio = CANVAS_WIDTH / CANVAS_HEIGHT;
+      let drawW = CANVAS_WIDTH;
+      let drawH = CANVAS_HEIGHT;
+      let drawX = 0;
+      let drawY = 0;
+
+      if (imgRatio > canvasRatio) {
+        drawH = CANVAS_HEIGHT;
+        drawW = CANVAS_HEIGHT * imgRatio;
+        drawX = (CANVAS_WIDTH - drawW) / 2;
+      } else {
+        drawW = CANVAS_WIDTH;
+        drawH = CANVAS_WIDTH / imgRatio;
+        drawY = (CANVAS_HEIGHT - drawH) / 2;
+      }
+
+      ctx.drawImage(this.bgImage, drawX, drawY, drawW, drawH);
+
+      // Subtle stylish tint overlay so neon lines, ball, and score stand out clearly
+      ctx.fillStyle = 'rgba(6, 8, 20, 0.42)';
+      ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+      ctx.restore();
+    }
 
     // 2. Futuristic Neon Perspective Grid
     this.renderCyberGrid(ctx);

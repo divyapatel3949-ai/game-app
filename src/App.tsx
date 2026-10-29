@@ -128,6 +128,13 @@ export function App() {
 
   return (
     <div className="relative w-screen h-screen bg-[#03050c] flex items-center justify-center overflow-hidden font-sans select-none">
+      {/* Ambient background photo blur */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center opacity-25 blur-md scale-105 pointer-events-none"
+        style={{ backgroundImage: 'url(/game-bg.png)' }}
+      />
+      <div className="absolute inset-0 bg-black/40 pointer-events-none" />
+
       {/* Background radial glow */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,245,255,0.06)_0%,transparent_70%)] pointer-events-none" />
 

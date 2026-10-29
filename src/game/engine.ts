@@ -19,6 +19,7 @@ import { PowerUpManager } from './powerups';
 import { soundManager } from './audio';
 import { StorageManager } from './storage';
 import { AchievementManager } from './achievements';
+import { MobileHaptics } from './haptics';
 
 export interface EngineCallbacks {
   onScoreUpdate: (score: number, best: number) => void;
@@ -172,6 +173,7 @@ export class GameEngine {
         const jumped = this.physics.triggerJump(this.ball);
         if (jumped) {
           soundManager.playJump();
+          MobileHaptics.jump();
         }
       } else if (this.state === 'gameover' || this.state === 'menu') {
         this.startGame();
@@ -197,6 +199,7 @@ export class GameEngine {
       const jumped = this.physics.triggerJump(this.ball);
       if (jumped) {
         soundManager.playJump();
+        MobileHaptics.jump();
       }
     } else if (this.state === 'gameover' || this.state === 'menu') {
       this.startGame();
@@ -407,9 +410,12 @@ export class GameEngine {
       this.bestScore = this.score;
     }
 
+    MobileHaptics.breach();
+
     // Milestone notifications (10, 25, 50, 100)
     if ([10, 25, 50, 100].includes(this.score)) {
       soundManager.playMilestone();
+      MobileHaptics.milestone();
       this.triggerScreenFlash('#ffffff', 0.45);
       this.callbacks.onMilestone(this.score);
       this.particles.addFloatingText(`MILESTONE ${this.score}!`, CANVAS_WIDTH / 2, 280, '#ffe600', 1.8);
@@ -443,6 +449,7 @@ export class GameEngine {
   private triggerGameOver() {
     this.state = 'gameover';
     soundManager.playCollision();
+    MobileHaptics.collision();
 
     // Screen effects
     this.triggerScreenShake(18);
